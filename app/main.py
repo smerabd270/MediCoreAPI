@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from app.core.config import settings
 
-
+from app.database.session import SessionLocal
 app = FastAPI(
     title=settings.APP_NAME,
     description="Hospital Management System Backend",
