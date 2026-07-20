@@ -6,18 +6,50 @@ from openai import AsyncOpenAI
 from app.core.config import settings
 from app.models.chat import ChatLog
 
+class OpenAIProvider:
+    def __init__(self):
+        self.client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+        self.model = settings.MODEL_NAME
+
+    async def generate_stream(self, messages: list[dict]) -> AsyncGenerator[str, None]:
+        stream = await self.client.chat.completions.create(
+            model=self.model,
+            messages=messages,
+            stream=True
+        )
+        async for chunk in stream:
+            if chunk.choices:
+                token = chunk.choices[0].delta.content
+                if token:
+                    yield token
+
+class OllamaProvider:
+    def __init__(self):
+        self.client = AsyncOpenAI(
+            base_url=f"{settings.OLLAMA_BASE_URL}/v1",
+            api_key="ollama"
+        )
+        self.model = settings.OLLAMA_MODEL_NAME
+
+    async def generate_stream(self, messages: list[dict]) -> AsyncGenerator[str, None]:
+        stream = await self.client.chat.completions.create(
+            model=self.model,
+            messages=messages,
+            stream=True
+        )
+        async for chunk in stream:
+            if chunk.choices:
+                token = chunk.choices[0].delta.content
+                if token:
+                    yield token
+
 class ChatService:
     def __init__(self, db_session: AsyncSession):
         self.db = db_session
         if getattr(settings, "AI_PROVIDER", "openai").lower() == "ollama":
-            self.client = AsyncOpenAI(
-                base_url=f"{settings.OLLAMA_BASE_URL}/v1",
-                api_key="ollama"
-            )
-            self.model = settings.OLLAMA_MODEL_NAME
+            self.ai_client = OllamaProvider()
         else:
-            self.client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
-            self.model = getattr(settings, "MODEL_NAME", "gpt-4o")
+            self.ai_client = OpenAIProvider()
 
     async def _get_history(self, session_id: str) -> list[dict]:
         result = await self.db.execute(
@@ -42,21 +74,13 @@ class ChatService:
         ] + history + [{"role": "user", "content": prompt}]
 
         try:
-            stream = await self.client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                stream=True
-            )
-            
             accumulated_response = []
-            async for chunk in stream:
-                if chunk.choices:
-                    token = chunk.choices[0].delta.content
-                    if token:
-                        accumulated_response.append(token)
-                        yield json.dumps({"token": token}) + "\n"
+            async for token in self.ai_client.generate_stream(messages):
+                accumulated_response.append(token)
+                # Yield the raw text token directly with no JSON formatting wrapper
+                yield token
 
             await self._save_message(session_id, "assistant", "".join(accumulated_response))
 
         except Exception as e:
-            yield json.dumps({"error": f"Streaming iteration failed: {str(e)}"})
+            yield f"\n[Streaming iteration failed: {str(e)}]"

@@ -12,7 +12,6 @@ class Base(DeclarativeBase):
     
     # Standardized auto-incrementing Primary Key for all models
     id: Mapped[int] = mapped_column(primary_key=True, index=True, autoincrement=True)
-    
     # Automatically tracks when a row is inserted
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), 

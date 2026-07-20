@@ -15,11 +15,11 @@ class Settings(BaseSettings):
     JWT_SECRET: str
     JWT_EXPIRE_MINUTES: int = 60
 
-    AI_PROVIDER: str = "openai"
+    AI_PROVIDER: str = "ollama"
     OPENAI_API_KEY: str = "your-openai-api-key"
     MODEL_NAME: str = "gpt-4o"
-    OLLAMA_BASE_URL: str = "http://localhost:11434"
-    OLLAMA_MODEL_NAME: str = "llama3"
+    OLLAMA_BASE_URL: str = "http://15.235.51.160:11434"
+    OLLAMA_MODEL_NAME: str = "qwen3:8b"
 
     class Config:
         env_file = ".env"

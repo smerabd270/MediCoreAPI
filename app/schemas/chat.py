@@ -7,3 +7,7 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     session_id: str
     response: str
+
+# Add this class right here
+class SessionResponse(BaseModel):
+    session_id: str

@@ -15,18 +15,17 @@ class OpenAIProvider(BaseAIProvider):
             messages=messages,
             stream=True
         )
-        async range for chunk in stream:
-            token = chunk.choices[0].delta.content
-            if token:
-                yield token
-
+        async for chunk in stream:
+            if chunk.choices:
+                token = chunk.choices[0].delta.content
+                if token:
+                    yield token
 
 class OllamaProvider(BaseAIProvider):
     def __init__(self):
-        # Ollama runs standard OpenAI-compatible API configurations locally!
         self.client = AsyncOpenAI(
             base_url=f"{settings.OLLAMA_BASE_URL}/v1",
-            api_key="ollama" # Static placeholder value required by client validation
+            api_key="ollama"
         )
         self.model = settings.OLLAMA_MODEL_NAME
 
@@ -37,6 +36,7 @@ class OllamaProvider(BaseAIProvider):
             stream=True
         )
         async for chunk in stream:
-            token = chunk.choices[0].delta.content
-            if token:
-                yield token
+            if chunk.choices:
+                token = chunk.choices[0].delta.content
+                if token:
+                    yield token
