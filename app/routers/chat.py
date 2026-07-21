@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.session import get_db_session
-from app.schemas.chat import ChatHistoryResponse
-from app.schemas.chat import ChatRequest
+from app.schemas.chat import ChatRequest, ChatHistoryResponse
 from app.services.chat import ChatService
 
+# The name must be exactly 'router' to match your main.py import statement
 router = APIRouter(prefix="/chat", tags=["AI Engine"])
 
 def get_chat_service(db: AsyncSession = Depends(get_db_session)) -> ChatService:
@@ -18,8 +18,9 @@ async def handle_chat_stream(
 ):
     return StreamingResponse(
         chat_service.stream_chat(payload.session_id, payload.prompt),
-        media_type="text/event-stream"
+        media_type="text/plain"
     )
+
 @router.get("/history/{session_id}", response_model=ChatHistoryResponse, status_code=status.HTTP_200_OK)
 async def handle_get_history(
     session_id: str,

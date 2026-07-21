@@ -18,8 +18,12 @@ class Settings(BaseSettings):
     AI_PROVIDER: str = "ollama"
     OPENAI_API_KEY: str = "your-openai-api-key"
     MODEL_NAME: str = "gpt-4o"
-    OLLAMA_BASE_URL: str = "http://15.235.51.160:11434"
-    OLLAMA_MODEL_NAME: str = "qwen3:8b"
+    
+    OLLAMA_BASE_URL: str = "http://localhost:11434"
+    
+    # Target the new flagship cloud model
+    OLLAMA_MODEL_NAME: str = "glm-5.2:cloud"
+    OLLAMA_EMBEDDING_MODEL: str = "nomic-embed-text"
 
     class Config:
         env_file = ".env"

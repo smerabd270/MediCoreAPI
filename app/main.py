@@ -1,17 +1,12 @@
-import os
-import sys
 import uvicorn
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-
-# CRITICAL FIX: This path injection MUST run before importing any local 'app' modules
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
 from app.core.config import settings
 from app.database.session import engine
 from app.database.base import Base
 from app.routers.chat import router as chat_router
 from app.routers.session import router as session_router
+from app.routers.knowledge import router as knowledge_router  # Added import
 from app.models.chat import ChatLog
 
 @asynccontextmanager
@@ -29,8 +24,10 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Register all routes
 app.include_router(session_router)
 app.include_router(chat_router)
+app.include_router(knowledge_router)  # Registered knowledge router
 
 @app.get("/health", tags=["Monitoring"])
 def health_check():
