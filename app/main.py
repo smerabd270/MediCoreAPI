@@ -4,6 +4,7 @@ import uvicorn
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
+# CRITICAL FIX: This path injection MUST run before importing any local 'app' modules
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from app.core.config import settings
@@ -28,7 +29,6 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Register both active operational layers
 app.include_router(session_router)
 app.include_router(chat_router)
 

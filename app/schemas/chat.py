@@ -11,3 +11,11 @@ class ChatResponse(BaseModel):
 # Add this class right here
 class SessionResponse(BaseModel):
     session_id: str
+
+class MessageHistoryItem(BaseModel):
+    role: str
+    content: str
+
+class ChatHistoryResponse(BaseModel):
+    session_id: str
+    history: list[MessageHistoryItem]

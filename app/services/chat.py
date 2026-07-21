@@ -64,7 +64,8 @@ class ChatService:
         log_entry = ChatLog(session_id=session_id, role=role, content=content)
         self.db.add(log_entry)
         await self.db.commit()
-
+        async def get_session_history(self, session_id: str) -> list[dict]:
+         return await self._get_history(session_id)
     async def stream_chat(self, session_id: str, prompt: str) -> AsyncGenerator[str, None]:
         history = await self._get_history(session_id)
         await self._save_message(session_id, "user", prompt)
