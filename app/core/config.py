@@ -20,9 +20,7 @@ class Settings(BaseSettings):
     MODEL_NAME: str = "gpt-4o"
     
     OLLAMA_BASE_URL: str = "http://localhost:11434"
-    
-    # Target the new flagship cloud model
-    OLLAMA_MODEL_NAME: str = "glm-5.2:cloud"
+    OLLAMA_MODEL_NAME: str = "llama3.2"
     OLLAMA_EMBEDDING_MODEL: str = "nomic-embed-text"
 
     class Config:
