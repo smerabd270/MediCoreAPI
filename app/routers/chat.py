@@ -5,7 +5,6 @@ from app.database.session import get_db_session
 from app.schemas.chat import ChatRequest, ChatHistoryResponse
 from app.services.chat import ChatService
 
-# The name must be exactly 'router' to match your main.py import statement
 router = APIRouter(prefix="/chat", tags=["AI Engine"])
 
 def get_chat_service(db: AsyncSession = Depends(get_db_session)) -> ChatService:
@@ -17,7 +16,8 @@ async def handle_chat_stream(
     chat_service: ChatService = Depends(get_chat_service)
 ):
     return StreamingResponse(
-        chat_service.stream_chat(payload.session_id, payload.prompt),
+        # Forward the dynamic language field straight into the stream worker method
+        chat_service.stream_chat(payload.session_id, payload.prompt, payload.language),
         media_type="text/plain"
     )
 
